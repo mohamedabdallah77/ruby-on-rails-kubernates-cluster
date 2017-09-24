@@ -1,0 +1,55 @@
+$ mkdir pods
+$ cd pods
+$ vim mysql.yaml
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mysql
+  labels:
+    name: mysql
+spec:
+  containers:
+    - resources:
+        limits :
+          cpu: 1
+      image: mysql
+      name: mysql
+      env:
+        - name: MYSQL_ROOT_PASSWORD
+          # change this
+          value: yourpassword
+      ports:
+        - containerPort: 3306
+          name: mysql
+		  
+create pods
+$ kubectl create -f mysql.yaml
+
+$ kubectl get pods
+POD       IP            CONTAINER(S)   IMAGE(S)   HOST                            LABELS       STATUS    CREATED
+mysql     172.17.38.2   mysql          mysql      192.168.50.132/192.168.50.132   name=mysql   Running   3 hours
+
+===========================================
+Creating Service
+At this point, we have a MySQL pod inside 192.168.50.132. Define a mysql-service.yaml as below:
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: mysql
+  name: mysql
+spec:
+  externalIPs:
+    - 192.168.50.132
+  ports:
+    # the port that this service should serve on
+    - port: 3306
+  # label keys and values that must match in order to receive traffic for this service
+  selector:
+    name: mysql
+	
+==========================================	
+Start the service:
+$ kubectl create -f mysql-service.yaml		  
